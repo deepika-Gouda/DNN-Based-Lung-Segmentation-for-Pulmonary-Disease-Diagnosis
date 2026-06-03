@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home - Lung Segmentation</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            background: linear-gradient(to bottom right, #e0f7fa, #f8f9fa);
+            margin: 0;
+            padding: 60px 20px;
+            color: #2c3e50;
+            overflow-x: hidden;
+        }
+
+        /* Hero Image */
+        .hero-img {
+            max-width: 250px;
+            margin-bottom: 30px;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+        }
+
+        p {
+            font-size: 1.1em;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+            animation-delay: 0.3s;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Role buttons */
+        .roles {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+            animation-delay: 0.6s;
+        }
+
+        .roles a {
+            display: inline-block;
+            padding: 14px 25px;
+            text-decoration: none;
+            background: #3498db;
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Button hover effect */
+        .roles a::after {
+            content: "";
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: rgba(255,255,255,0.2);
+            transition: all 0.4s ease;
+            transform: skewX(-20deg);
+        }
+
+        .roles a:hover::after {
+            left: 100%;
+        }
+
+        .roles a:hover {
+            background: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+        }
+
+        /* Register link */
+        .register-link {
+            margin-top: 35px;
+            display: inline-block;
+            font-weight: 500;
+            color: #3498db;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+            animation-delay: 0.9s;
+        }
+
+        .register-link:hover {
+            color: #2980b9;
+        }
+
+        /* Floating shapes */
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.2;
+            animation: floatShape 6s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        .shape1 { width: 100px; height: 100px; background: #3498db; top: 50px; left: 20px; }
+        .shape2 { width: 150px; height: 150px; background: #1abc9c; top: 200px; right: 30px; }
+        .shape3 { width: 80px; height: 80px; background: #9b59b6; top: 400px; left: 100px; }
+
+        @keyframes floatShape {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Floating shapes -->
+    <div class="shape shape1"></div>
+    <div class="shape shape2"></div>
+    <div class="shape shape3"></div>
+
+    <!-- Hero Image -->
+    <img class="hero-img" src="https://img.icons8.com/color/200/lungs.png" alt="Lungs Illustration">
+
+    <h1>LungVision</h1>
+
+    <p>Please choose your login option:</p>
+    <div class="roles">
+        <a href="{{ url_for('login', role='user') }}">Login as User</a>
+        <a href="{{ url_for('login', role='doctor') }}">Login as Doctor</a>
+        <a href="{{ url_for('login', role='admin') }}">Login as Admin</a>
+    </div>
+
+    <a class="register-link" href="{{ url_for('register') }}">Don’t have an account? Register here</a>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lung Disease Classifier</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header class="header" role="banner">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="logo">🫁</div>
+        <div>
+          <h1>Lung Disease Classifier</h1>
+          <p class="subtitle">AI-assisted chest X-ray analysis — educational demo only</p>
+        </div>
+      </div>
+      <div class="meta">
+        <small class="muted">Not a medical device</small>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" role="main">
+    <section class="left-col">
+      <form id="uploadForm" class="upload-card" method="POST" enctype="multipart/form-data" action="{{ url_for('predict') }}">
+        <h2>Upload Chest X-Ray</h2>
+        <p class="lead">Drag & drop or click to choose a chest X-ray image (PNG/JPG). Max 10MB.</p>
+
+        <div class="upload-box" id="dropArea" aria-label="Drop area">
+          <div class="upload-icon">⬆</div>
+          <p class="muted">Drop your image here<br>or <span class="browse-btn">click to browse</span></p>
+          <input id="fileInput" type="file" name="file" accept="image/*" hidden>
+          <p class="hint">Supported: JPG, PNG • Max 10MB</p>
+        </div>
+
+        <div class="preview" id="preview" aria-live="polite"></div>
+
+        <div class="controls">
+          <button id="submitBtn" type="submit" class="btn">Analyze</button>
+          <div id="spinnerWrap" class="spinnerWrap" style="display:none;" aria-hidden="true"><span class="spinner" aria-hidden="true"></span></div>
+        </div>
+
+        <div class="small-info">
+          <p class="hint">Results are for educational purposes and not a medical diagnosis.</p>
+        </div>
+      </form>
+    </section>
+
+    <aside class="right-col">
+      <div class="panel info-panel">
+        <h3>How it works</h3>
+        <ol>
+          <li>Upload a chest X-ray image (PA/AP preferred).</li>
+          <li>Model returns top predictions, segmentation overlay, Grad-CAM heatmap & overlay.</li>
+          <li>On the result page, use the slider to compare original vs overlay.</li>
+        </ol>
+        <p class="muted" style="margin-top:8px;">Tip: cropping out non-X-ray borders often improves segmentation overlay alignment.</p>
+      </div>
+
+      <div class="panel examples">
+        <h3>Example images</h3>
+        <div class="thumbs">
+          <img src="{{ url_for('static', filename='examples/example1.png') }}" alt="example" loading="lazy" onerror="this.style.display='none'">
+          <img src="{{ url_for('static', filename='examples/example2.png') }}" alt="example" loading="lazy" onerror="this.style.display='none'">
+          <img src="{{ url_for('static', filename='examples/example3.png') }}" alt="example" loading="lazy" onerror="this.style.display='none'">
+        </div>
+        <p class="muted">(Optional) Put example images in <code>static/examples/</code>.</p>
+      </div>
+    </aside>
+  </main>
+
+  <footer style="text-align:center;padding:18px;color:var(--muted);">
+    <small>Powered by AI • © {{ current_year }}</small>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

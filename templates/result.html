@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Results — Lung Classifier</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header class="header" role="banner">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="logo">🫁</div>
+        <div>
+          <h1>Analysis Result</h1>
+          <p class="subtitle">AI-assisted chest X-ray analysis — educational demo only</p>
+        </div>
+      </div>
+      <div class="meta">
+        <small class="muted">Not a medical device</small>
+      </div>
+    </div>
+  </header>
+
+  <main class="result-container" role="main">
+    <section class="panel">
+      <h3>Compare</h3>
+
+      <div class="img-compare" style="height:auto;">
+        <img id="baseImg" src="{{ image_url }}" alt="Original" style="width:100%;display:block; border-radius:8px;">
+        {% if grad_overlay_url %}
+          <img id="overlayImg" class="overlay" src="{{ grad_overlay_url }}" alt="Overlay" style="width:50%;">
+        {% elif seg_url %}
+          <img id="overlayImg" class="overlay" src="{{ seg_url }}" alt="Overlay" style="width:50%;">
+        {% else %}
+          <img id="overlayImg" class="overlay" src="{{ image_url }}" alt="Overlay" style="width:50%;opacity:0.0;">
+        {% endif %}
+
+        <input id="compareRange" type="range" min="0" max="100" value="50" aria-label="Compare slider">
+      </div>
+
+      <div class="legend">
+        <span class="swatch"></span> Segmentation overlay
+      </div>
+
+      <div class="result-thumbs" style="margin-top:14px;">
+        <img class="thumb" data-type="base" data-src="{{ image_url }}" src="{{ image_url }}" alt="orig thumbnail">
+        {% if seg_url %}
+          <img class="thumb" data-type="overlay" data-src="{{ seg_url }}" src="{{ seg_url }}" alt="seg thumbnail">
+        {% endif %}
+        {% if grad_overlay_url %}
+          <img class="thumb" data-type="overlay" data-src="{{ grad_overlay_url }}" src="{{ grad_overlay_url }}" alt="grad thumbnail">
+        {% endif %}
+      </div>
+
+      <div class="notice" style="margin-top:12px;">
+        <strong>Tip:</strong> If overlays look misaligned, try cropping out borders and re-uploading.
+      </div>
+    </section>
+
+    <aside class="panel pred-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <h2>Prediction</h2>
+          {% if topk and topk[0] %}
+            <div class="pred-big">{{ topk[0].label }}</div>
+            <div style="color:var(--muted);margin-top:6px;">Confidence: <strong>{{ confidence }}%</strong><br>Uncertainty: <strong>{{ uncertainty }}%</strong></div>
+          {% else %}
+            <div class="pred-big">Unknown</div>
+          {% endif %}
+        </div>
+        <div style="text-align:right;">
+          <a class="btn btn-ghost" href="{{ url_for('predict') }}">Analyze another image</a>
+        </div>
+      </div>
+      <form action="{{ url_for('download_report') }}" method="POST">
+  <input type="hidden" name="label" value="{{ topk[0]['label'] }}">
+  <input type="hidden" name="confidence" value="{{ confidence }}">
+  <input type="hidden" name="uncertainty" value="{{ uncertainty }}">
+  <input type="hidden" name="image_url" value="{{ image_url }}">
+  <input type="hidden" name="seg_url" value="{{ seg_url }}">
+  <button type="submit" class="btn btn-success mt-3">Download Report (PDF)</button>
+</form>
+
+
+      <hr style="border:none;height:12px;">
+
+      <h3 style="margin-top:6px;">Top Predictions</h3>
+      <ul class="pred-list">
+        {% for p in topk %}
+          <li>
+            <div class="pred-label">
+              <span>{{ p.label }}</span>
+              <span>{{ p.prob }}%</span>
+            </div>
+            <div class="bar" aria-hidden="true">
+              <div class="bar-fill" style="width: {{ p.prob }}%;"></div>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+
+      <div style="margin-top:12px;">
+        <h4 style="margin:0 0 6px;">Notes</h4>
+        <p class="muted">This demo is for educational use only. Not a substitute for professional medical advice.</p>
+      </div>
+
+    </aside>
+  </main>
+
+  <footer style="text-align:center;padding:18px;color:var(--muted);">
+    <small>Powered by AI • © {{ current_year }}</small>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

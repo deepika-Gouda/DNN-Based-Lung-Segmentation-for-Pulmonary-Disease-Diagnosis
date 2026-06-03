@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lung Disease Classifier</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  <style>
+/* (ALL YOUR CSS UNCHANGED — KEEPING ORIGINAL) */
+  </style>
+</head>
+
+<body>
+<header class="header">
+  <div class="brand">
+    <div class="logo">🫁</div>
+    <div>
+      <h1>Lung Disease Classifier</h1>
+      <p class="subtitle">AI-assisted chest X-ray analysis — educational demo only</p>
+    </div>
+  </div>
+
+  <div class="user-dashboard-link">
+    {% if current_user.is_authenticated and current_user.role == 'user' %}
+      <a href="{{ url_for('user_dashboard') }}" class="btn btn-secondary">
+        <i class="fas fa-notes-medical"></i> My Dashboard
+      </a>
+    {% endif %}
+  </div>
+</header>
+
+<main class="container">
+  <section class="left-col">
+    <form id="uploadForm" class="upload-card" method="POST" enctype="multipart/form-data" action="{{ url_for('predict') }}">
+      <h2>Upload Chest X-Ray</h2>
+      <p class="lead">Drag & drop or click to choose a chest X-ray image (PNG/JPG). Max 10MB.</p>
+
+      <div class="upload-box" id="dropArea">
+        <div class="upload-icon">⬆</div>
+        <p class="muted">Drag & drop or click to select an image</p>
+        <p class="hint">JPG/PNG only • Max 10MB</p>
+        <input id="fileInput" type="file" name="file" accept="image/*" hidden>
+      </div>
+
+      <div class="preview" id="preview" aria-live="polite"></div>
+
+      <div class="controls">
+        <button id="submitBtn" type="submit" class="btn" disabled>Analyze</button>
+      </div>
+
+      <div class="small-info">
+        <p class="hint">Results are for educational purposes and not a medical diagnosis.</p>
+      </div>
+    </form>
+  </section>
+
+  <aside class="right-col">
+    <div class="panel info-panel">
+      <h3>How it works</h3>
+      <ol>
+        <li>Upload a chest X-ray image (PA/AP preferred).</li>
+        <li>Click Analyze to classify the image.</li>
+        <li>View disease prediction results.</li>
+      </ol>
+    </div>
+  </aside>
+</main>
+
+<footer>
+  <small>Powered by AI • © {{ current_year }}</small>
+</footer>
+
+<script>
+const dropArea = document.getElementById('dropArea');
+const fileInput = document.getElementById('fileInput');
+const uploadForm = document.getElementById('uploadForm');
+const preview = document.getElementById('preview');
+const submitBtn = document.getElementById('submitBtn');
+
+const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+const maxSize = 10 * 1024 * 1024; // 10MB
+
+submitBtn.disabled = true;
+
+// --- Drag & Drop ---
+dropArea.addEventListener('click', () => fileInput.click());
+dropArea.addEventListener('dragover', e => {
+  e.preventDefault();
+  dropArea.classList.add('hover');
+});
+dropArea.addEventListener('dragleave', e => {
+  e.preventDefault();
+  dropArea.classList.remove('hover');
+});
+dropArea.addEventListener('drop', e => {
+  e.preventDefault();
+  dropArea.classList.remove('hover');
+  handleFiles(e.dataTransfer.files);
+});
+
+fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+
+// --- Handle File (NO VERIFICATION) ---
+function handleFiles(files) {
+  preview.innerHTML = '';
+  submitBtn.disabled = true;
+
+  if (!files.length) return;
+  const file = files[0];
+
+  if (!allowedTypes.includes(file.type)) {
+    preview.innerHTML = `<p style="color:red;">❌ Invalid file type! Only JPG/PNG allowed.</p>`;
+    return;
+  }
+  if (file.size > maxSize) {
+    preview.innerHTML = `<p style="color:red;">❌ File too large! Max 10MB.</p>`;
+    return;
+  }
+
+  // Show preview
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    img.style.maxWidth = '100%';
+    img.style.borderRadius = '8px';
+    preview.appendChild(img);
+  };
+  reader.readAsDataURL(file);
+
+  // Enable button WITHOUT verification
+  submitBtn.disabled = false;
+}
+</script>
+</body>
+</html>

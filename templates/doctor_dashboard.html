@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Doctor Dashboard — Lung Disease Classifier</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; margin:0; background:#f9f9f9; color:#333; }
+    header { background:#2c3e50; color:white; padding:16px 32px; display:flex; justify-content:space-between; align-items:center; }
+    .container { max-width:1200px; margin:40px auto; background:white; padding:24px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1);}
+    h1 { text-align:center; color:#2c3e50; margin-bottom:24px; }
+    table { width:100%; border-collapse:collapse; margin-bottom:20px; }
+    th, td { text-align:left; padding:10px; border-bottom:1px solid #ddd; vertical-align:middle; }
+    th { background:#f2f2f2; }
+    img { width:100px; border-radius:6px; }
+    .btn { padding:6px 12px; border:none; border-radius:5px; cursor:pointer; font-size:14px; text-decoration:none; }
+    .btn-primary { background:#3498db; color:white; }
+    .btn-danger { background:#e74c3c; color:white; }
+    .btn-success { background:#27ae60; color:white; }
+    textarea { width:100%; height:70px; padding:8px; border-radius:5px; border:1px solid #ccc; resize:vertical; font-size:14px; }
+    .note-form { margin-top:10px; background:#f4f8fb; padding:10px; border-radius:8px; }
+    .filters { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+    .filters input, .filters select { padding:6px; border-radius:5px; border:1px solid #ccc; }
+    nav.pagination { text-align:center; margin-top:20px; }
+    nav.pagination .page-item { display:inline-block; margin:0 3px; }
+    nav.pagination .page-item a { padding:6px 12px; border-radius:5px; border:1px solid #ccc; text-decoration:none; color:#333; }
+    nav.pagination .page-item.active a { background:#3498db; color:white; border-color:#3498db; }
+    footer { text-align:center; color:#888; margin-top:30px; padding:15px; }
+  </style>
+</head>
+<body>
+<header>
+  <h2>🩺 Doctor Dashboard</h2>
+  <div><a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a></div>
+</header>
+
+<div class="container">
+  <h1>Patient Reports</h1>
+
+  <!-- Filters -->
+  <form method="get" class="filters">
+    <input type="text" name="username" placeholder="Search by patient" value="{{ username }}">
+    <input type="date" name="start_date" value="{{ start_date }}">
+    <input type="date" name="end_date" value="{{ end_date }}">
+    <button type="submit" class="btn btn-primary">Filter</button>
+  </form>
+
+  {% if uploads %}
+  <table>
+    <thead>
+      <tr>
+        <th>Image</th>
+        <th>Patient</th>
+        <th>Prediction</th>
+        <th>Confidence</th>
+        <th>Uncertainty</th>
+        <th>Segmentation</th>
+        <th>Notes</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for upload in uploads %}
+      <tr>
+        <td><img src="{{ url_for('static', filename='uploads/' + upload.filename) }}" alt="X-ray"></td>
+        <td>{{ upload.user.username }}</td>
+        <td><strong>{{ upload.top_pred }}</strong></td>
+        <td>{{ "%.2f"|format(upload.confidence or 0) }}%</td>
+        <td>{{ "%.2f"|format(upload.uncertainty or 0) }}%</td>
+        <td>
+          {% if upload.seg_filename %}
+            <a class="btn btn-primary" href="{{ url_for('static', filename='results/' + upload.seg_filename) }}" target="_blank">View</a>
+          {% else %} N/A {% endif %}
+        </td>
+        <td>
+          <form class="note-form" action="{{ url_for('doctor_note', upload_id=upload.id) }}" method="POST">
+            <textarea name="note">{{ upload.notes or '' }}</textarea>
+            <button class="btn btn-success" type="submit">Save</button>
+          </form>
+        </td>
+        <td>
+          <a class="btn btn-success" href="{{ url_for('doctor_download', upload_id=upload.id) }}">Download PDF</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Pagination -->
+  {% if total_pages > 1 %}
+  <nav class="pagination">
+    {% for p in range(1, total_pages + 1) %}
+      <div class="page-item {% if p == page %}active{% endif %}">
+        <a href="{{ url_for('doctor_dashboard', page=p, username=username, start_date=start_date, end_date=end_date) }}">{{ p }}</a>
+      </div>
+    {% endfor %}
+  </nav>
+  {% endif %}
+
+  {% else %}
+    <p>No patient reports available yet.</p>
+  {% endif %}
+</div>
+
+<footer>
+  © {{ current_year }} | Lung Disease Classifier — Doctor Portal
+</footer>
+</body>
+</html>

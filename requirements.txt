@@ -1,0 +1,11 @@
+flask
+werkzeug
+pillow
+numpy
+opencv-python
+matplotlib
+torch
+torchvision
+tqdm
+pandas
+scikit-learn
